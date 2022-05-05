@@ -1,11 +1,20 @@
+import { __generateQuery } from "../../helpers/query";
+
 const resolver = {
     Query: {
         foodEntries: async(
             _ :any,
-            args: any,
-            { db } :any
+            {filter, search}: any,
+            { db, user } :any
         ) => {
-            return await db.FoodEntry.find({});
+            const __query = __generateQuery("User", {
+                filter,
+                search,
+                extraFilter: {
+                  ...(user ? {user} : {})
+                }
+              })
+            return await db.FoodEntry.find(__query.filter);
         },
         foodEntry: async(
             _:any,
@@ -19,16 +28,16 @@ const resolver = {
         createFoodEntry: (
             _:any,
             args:any,
-            {db}:any
+            {db, user}:any
         ) => {
-            return new db.FoodEntry(args).save();
+            return new db.FoodEntry({...args.input, user}).save();
         },
         updateFoodEntry: (
             _:any,
             args:any,
             {db}:any
         ) => {
-            return db.FoodEntry.findByIdAndUpdate(args.id, args, {new: true});
+            return db.FoodEntry.findByIdAndUpdate(args.input.id, args, {new: true});
         },
         deleteFoodEntry: () => {},
     }

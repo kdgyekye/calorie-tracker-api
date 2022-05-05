@@ -1,4 +1,3 @@
-import UserModel from "../../models/users";
 
 const resolver = {
     Query: {
@@ -7,7 +6,7 @@ const resolver = {
     Mutation: {
         loginUser: async (_: any, args: any, { db }: any) => {
             console.log(args)
-            const user = await UserModel.findByCredentials(args.input.email, args.input.password);
+            const user = await db.User.findByCredentials(args.input.email, args.input.password);
             const token = await user.generateAuthToken();
             return { user, token };
         }

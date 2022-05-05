@@ -12,8 +12,8 @@ const resolver = {
     createMeal: (_: any, args: any, { db }: any) => {
       return new db.Meal(args).save();
     },
-    updateMeal: (_: any, args: any, { db }:  any) => {
-        return db.Meal.findByIdAndUpdate(args.id, args, { new: true });
+    updateMeal: async (_: any, args: any, { db }:  any) => {
+        return await db.Meal.findByIdAndUpdate(args.id, args, { new: true });
     },
     deleteMeal: () => {},
   },

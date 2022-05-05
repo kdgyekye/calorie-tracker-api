@@ -22,9 +22,21 @@ const typeDefs = gql`
         foodEntries(userId: ID dateRange: DateRangeInput): [FoodEntry]
     }
 
+    input CreateFoodEntryInput {
+        food: String!, 
+        meal: ID!, 
+        calorieValue: Float!
+    }
+
+    input UpdateFoodEntryInput {
+        food: String!, 
+        meal: String!, 
+        calorieValue: Float!
+    }
+
     extend type Mutation {
-        createFoodEntry(food: String!, meal: String!, calorieValue: Float!): FoodEntry
-        updateFoodEntry(id: ID!, food: String, meal: String, calorieValue: Float): FoodEntry
+        createFoodEntry(input: CreateFoodEntryInput!): FoodEntry
+        updateFoodEntry(input: UpdateFoodEntryInput!): FoodEntry
         deleteFoodEntry(id: ID!): FoodEntry
     }
 

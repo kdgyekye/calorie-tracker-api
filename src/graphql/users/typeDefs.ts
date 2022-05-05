@@ -27,6 +27,7 @@ const typeDefs = gql`
   extend type Query {
     user(id: ID!): User
     users(id: ID, name: String, limit: Float): [User]
+    currentUser: User
   }
 
   extend type Mutation {  

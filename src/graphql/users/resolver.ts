@@ -1,3 +1,5 @@
+import UserModel from "../../models/users";
+
 const resolver = {
     Query: {
         user: (
@@ -7,12 +9,19 @@ const resolver = {
         ) => {
             return db.User.findById(args.id);
         },
-        users: (
+        users: async (
             _: any,
             args: { id?: string; name?: string; limit?: number },
-            { db }: any
+            context: any
         ) => {
-            return db.User.find(args);
+            return await context.db.User.find(args);
+        },
+        currentUser: (
+            _: any,
+            args: any,
+            {user}: any
+        ) => {
+            return user;
         }
     },
     Mutation: {
@@ -21,8 +30,9 @@ const resolver = {
             args: { input: any },
             { db }: any
         ) => {
-            const userToken = args.input.generateAuthToken();
-            return db.User.create(userToken);
+            const newUser = new db.User(args.input);
+            newUser.generateAuthToken();
+            return newUser;
         },
         updateUser: (
             _: any,
