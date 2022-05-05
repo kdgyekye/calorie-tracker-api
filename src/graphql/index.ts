@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server';
+import { gql } from 'apollo-server-express';
 //resolvers
 import foodEntriesResolver from './food-entries/resolver';
 import mealsResolver from './meals/resolver';

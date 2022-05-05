@@ -1,7 +1,7 @@
 "use strict";
 
 import {validateAuthToken} from "../utils/verify-token"
-import { AuthenticationError } from "apollo-server";
+import { AuthenticationError } from "apollo-server-express";
 import models from "../models";
 
 export async function __setContext({req}:any) {

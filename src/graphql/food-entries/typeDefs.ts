@@ -17,15 +17,28 @@ const typeDefs = gql`
         endDate: DateTime
     }
 
+    input GetFoodEntriesFilter {
+        food: String
+        createdAt: DateTime,
+        meal: ID
+    }
+
+    input Pagination {
+        limit: Int
+        skip: Int
+    }
+
     extend type Query {
         foodEntry(id: ID!): FoodEntry
-        foodEntries(userId: ID dateRange: DateRangeInput): [FoodEntry]
+        foodEntries(filter: GetFoodEntriesFilter, pagination: Pagination): [FoodEntry]
+        foodEntriesLength(userId: ID dateRange: DateRangeInput): Int
     }
 
     input CreateFoodEntryInput {
         food: String!, 
         meal: ID!, 
         calorieValue: Float!
+        user: ID
     }
 
     input UpdateFoodEntryInput {

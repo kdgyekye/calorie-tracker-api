@@ -4,17 +4,22 @@ const resolver = {
     Query: {
         foodEntries: async(
             _ :any,
-            {filter, search}: any,
+            {filter, search, pagination}: any,
             { db, user } :any
         ) => {
             const __query = __generateQuery("User", {
                 filter,
                 search,
+                pagination,
                 extraFilter: {
-                  ...(user ? {user} : {})
+                  ...(user.role === "USER" ? {user} : {})
                 }
               })
-            return await db.FoodEntry.find(__query.filter);
+            return await db.FoodEntry
+            .find(__query.filter)
+            .skip(__query.skip)
+            .limit(__query.limit)
+            .lean();
         },
         foodEntry: async(
             _:any,
@@ -23,6 +28,23 @@ const resolver = {
         ) => {
             return await db.FoodEntry.findById(args.id);
         },
+
+        foodEntriesLength: async(
+            _:any,
+            {filter, search, pagination}:any,
+            {db, user}:any
+        ) => {
+            const __query = __generateQuery("FoodEntry", {
+                filter,
+                search,
+                pagination,
+                extraFilter: {
+                    ...(user.role === "USER" ? {user} : {})
+                  }
+            })
+            return await db.FoodEntry
+            .countDocuments(__query.filter);
+        }
     },
     Mutation: {
         createFoodEntry: (
