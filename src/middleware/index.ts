@@ -11,8 +11,9 @@ export async function __setContext({req}:any) {
   if (req.headers.authorization) {
     let authorization:any = await validateAuthToken(req.headers.authorization)
     if (!authorization) throw new AuthenticationError("InvalidToken")
-    const user = await models.User.findOne({ _id: authorization._id, 'tokens.token': req.headers.authorization })
+    const user = await models.User.findOne({ _id: authorization._id, 'tokens': req.headers.authorization })
     context.user = user
+    context.token = req.headers.authorization
   }
   return context
 }

@@ -13,6 +13,7 @@ const typeDefs = gql `
 
     extend type Mutation {
         loginUser(input: LoginInput!): UserAuthentication
+        signOutUser: Boolean
     }
 `
 
