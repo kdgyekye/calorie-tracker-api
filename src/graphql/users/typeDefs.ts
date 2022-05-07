@@ -58,7 +58,7 @@ const typeDefs = gql`
     user(id: ID!): User
     users(filter: GetUsersFilter, pagination: Pagination): [User]
     currentUser: User
-    averageCaloriesPerDay: Float
+    userCalorieThresholdReached: Boolean
   }
 
   extend type Mutation {  

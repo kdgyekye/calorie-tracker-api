@@ -31,6 +31,13 @@ const typeDefs = gql`
       currentDay: DateTime
   }
 
+  type AverageEntriesSummary {
+    _id: ID
+    total: Int
+    avg: Float
+    user: [User]
+  }
+
   extend type Query {
     foodEntry(id: ID!): FoodEntry
     foodEntries(
@@ -40,7 +47,9 @@ const typeDefs = gql`
     ): [FoodEntry]
     foodEntriesLength(userId: ID, dateRange: DateRangeInput): Int
     sumLastWeekEntries: Int
-    sumLastTwoWeeksEntries: Int   
+    sumLastTwoWeeksEntries: Int  
+    averageLastWeekEntries: [AverageEntriesSummary] 
+    hasUserExceededLimitToday: Boolean
   }
 
   input CreateFoodEntryInput {
@@ -53,8 +62,9 @@ const typeDefs = gql`
   input UpdateFoodEntryInput {
     _id: ID!
     food: String
-    meal: String
+    meal: ID
     calorieValue: Float
+    user: ID
   }
 
   extend type Mutation {

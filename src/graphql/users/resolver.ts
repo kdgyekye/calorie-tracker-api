@@ -15,6 +15,7 @@ const resolver = {
     currentUser: (_: any, args: any, { user }: any) => {
       return user;
     },
+
   },
   Mutation: {
     createUser: (_: any, args: { input: any }, { db }: any) => {

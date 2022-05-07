@@ -46,10 +46,10 @@ const resolver = {
     },
 
     sumLastWeekEntries: async (_: any, args: any, { db, user }: any) => {
-      const summary =  await db.FoodEntry.aggregate([
+      const summary = await db.FoodEntry.aggregate([
         {
           $match: {
-            ...(user.role === "USER" ? { user } : {}),
+            //...(user.role === "USER" ? { user } : {}),
             createdAt: {
               $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
               $lte: new Date(),
@@ -59,22 +59,21 @@ const resolver = {
         {
           $group: {
             _id: null,
-            total: { $sum: 1  },
+            total: { $sum: 1 },
           },
         },
-      ])
-      console.log("Last week: ",summary)
+      ]);
+      console.log("Last week: ", summary);
       if (summary.length > 0) {
-        return summary[0].total
-      }
-      else return 0
+        return summary[0].total;
+      } else return 0;
     },
 
     sumLastTwoWeeksEntries: async (_: any, args: any, { db, user }: any) => {
       const summary = await db.FoodEntry.aggregate([
         {
           $match: {
-            ...(user.role === "USER" ? { user } : {}),
+            //...(user.role === "USER" ? { user } : {}),
             createdAt: {
               $gte: new Date(new Date().setDate(new Date().getDate() - 14)),
               $lte: new Date(new Date().setDate(new Date().getDate() - 7)),
@@ -86,18 +85,85 @@ const resolver = {
             _id: null,
             total: { $sum: "$calorieValue" },
           },
-        }
-      ])
-      console.log("Last 2 weeks: ",summary)
+        },
+      ]);
+      console.log("Last 2 weeks: ", summary);
       if (summary.length > 0) {
-        return summary[0].total
-      }
-      else return 0
+        return summary[0].total;
+      } else return 0;
     },
+
+    //The average number of calories added per user for the last 7 days
+    averageLastWeekEntries: async (_: any, args: any, { db }: any) => {
+      const summary = await db.FoodEntry.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+              $lte: new Date(),
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+        {
+          $group: {
+            _id: "$user",
+            total: { $sum: 1 },
+            avg: { $avg: "$calorieValue" },
+            user: { $first: "$userDetails" },
+          },
+        },
+        {
+          $sort: {
+            avg: -1,
+          },
+        },
+      ]);
+      console.log("Last week: ", summary);
+      if (summary.length > 0) {
+        return summary;
+      }
+      else return null
+    },
+
+    // Check if a user has exceeded the set calorie limit for today
+    hasUserExceededLimitToday: async (_: any, args: any, { db, user }: any) => {
+      const summary = await db.FoodEntry.aggregate([
+        {
+          $match: {
+            user: user._id,
+            createdAt: {
+              $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+              $lte: new Date(new Date().setHours(23, 59, 59, 999)),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$calorieValue" },
+          },
+        },
+      ]);
+      console.log("Today: ", summary);
+      if (summary.length > 0) {
+        return summary[0].total > user.calorieLimit;
+      }
+    }
   },
   Mutation: {
     createFoodEntry: (_: any, args: any, { db, user }: any) => {
-      return new db.FoodEntry({ ...args.input, user }).save();
+      return new db.FoodEntry({
+        ...args.input,
+        user: user.role === "USER" ? user._id : args.input.user,
+      }).save();
     },
     updateFoodEntry: async (_: any, args: any, { db }: any) => {
       return await db.FoodEntry.findByIdAndUpdate(args.input._id, args.input, {
