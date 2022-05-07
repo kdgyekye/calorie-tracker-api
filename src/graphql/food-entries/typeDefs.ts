@@ -38,6 +38,11 @@ const typeDefs = gql`
     user: [User]
   }
 
+  type DaysExceededLimitSummary {
+    total: Int
+    day: DateTime
+  }
+
   extend type Query {
     foodEntry(id: ID!): FoodEntry
     foodEntries(
@@ -50,6 +55,7 @@ const typeDefs = gql`
     sumLastTwoWeeksEntries: Int  
     averageLastWeekEntries: [AverageEntriesSummary] 
     hasUserExceededLimitToday: Boolean
+    daysUserExceededLimit: [DaysExceededLimitSummary]
   }
 
   input CreateFoodEntryInput {

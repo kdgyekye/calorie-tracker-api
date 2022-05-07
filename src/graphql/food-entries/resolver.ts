@@ -156,7 +156,52 @@ const resolver = {
       if (summary.length > 0) {
         return summary[0].total > user.calorieLimit;
       }
+    },
+
+    // Days user exceeded the calorie limit
+    daysUserExceededLimit: async (_: any, args: any, { db, user }: any) => {
+      const summary = await db.FoodEntry.aggregate([
+        {
+          $match: {
+            user: user._id,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $dateToString: {
+                  format: "%d-%m-%Y",
+                  date: "$createdAt",
+                },
+              },
+            },
+            total: { $sum: "$calorieValue" },
+          },
+        },
+        {
+          $match: {
+            total: {
+              $gt: 50,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              day: "$_id.date",
+            },
+            day: { $first: "$_id.date" },
+            total: { $first: "$total"},
+          },
+        },
+      ]);
+      console.log("Days: ", summary);
+      if (summary.length > 0) {
+        return summary;
+      }
     }
+
   },
   Mutation: {
     createFoodEntry: (_: any, args: any, { db, user }: any) => {
