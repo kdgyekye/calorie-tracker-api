@@ -39,7 +39,7 @@ const typeDefs = gql`
   }
 
   type DaysExceededLimitSummary {
-    total: Int
+    total: Float
     day: DateTime
     limit: Float
   }
