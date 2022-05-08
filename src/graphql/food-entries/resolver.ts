@@ -4,10 +4,11 @@ const resolver = {
   Query: {
     foodEntries: async (
       _: any,
-      { filter, search, pagination, populate }: any,
+      { filter, search, pagination, populate, startDate, endDate }: any,
       { db, user }: any
     ) => {
       console.log(filter);
+      console.log(startDate === endDate)
       const __query = __generateQuery("User", {
         filter,
         search,
@@ -15,8 +16,14 @@ const resolver = {
         populate,
         extraFilter: {
           ...(user.role === "USER" ? { user } : {}),
+          ...(startDate && endDate ? { 
+            ...(startDate === endDate ? { createdAt: {$eq: new Date(startDate)}}
+            :
+            {createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) } })
+          } : {}),
         },
       });
+      console.log(__query);
       return await db.FoodEntry.find(__query.filter)
         .sort({ createdAt: -1 })
         .skip(__query.skip)
@@ -31,7 +38,7 @@ const resolver = {
 
     foodEntriesLength: async (
       _: any,
-      { filter, search, pagination }: any,
+      { filter, search, pagination, startDate, endDate }: any,
       { db, user }: any
     ) => {
       const __query = __generateQuery("FoodEntry", {
@@ -40,6 +47,7 @@ const resolver = {
         pagination,
         extraFilter: {
           ...(user.role === "USER" ? { user } : {}),
+          ...(startDate && endDate ? { createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) } } : {}),
         },
       });
       return await db.FoodEntry.countDocuments(__query.filter);
@@ -160,6 +168,7 @@ const resolver = {
 
     // Days user exceeded the calorie limit
     daysUserExceededLimit: async (_: any, args: any, { db, user }: any) => {
+      const limit = 10
       const summary = await db.FoodEntry.aggregate([
         {
           $match: {
@@ -171,7 +180,7 @@ const resolver = {
             _id: {
               date: {
                 $dateToString: {
-                  format: "%d-%m-%Y",
+                  format: "%m-%d-%Y",
                   date: "$createdAt",
                 },
               },
@@ -182,7 +191,7 @@ const resolver = {
         {
           $match: {
             total: {
-              $gt: 50,
+              $gt: limit,
             },
           },
         },
@@ -198,8 +207,15 @@ const resolver = {
       ]);
       console.log("Days: ", summary);
       if (summary.length > 0) {
-        return summary;
+        return summary.map((day:any) => {
+          return {
+            day: day.day,
+            total: day.total,
+            limit
+          };
+        });
       }
+      else return []
     }
 
   },

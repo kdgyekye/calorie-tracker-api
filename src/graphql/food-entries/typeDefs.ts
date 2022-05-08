@@ -41,6 +41,7 @@ const typeDefs = gql`
   type DaysExceededLimitSummary {
     total: Int
     day: DateTime
+    limit: Float
   }
 
   extend type Query {
@@ -49,8 +50,10 @@ const typeDefs = gql`
       filter: GetFoodEntriesFilter
       pagination: Pagination
       populate: [String]
+      startDate: DateTime
+      endDate: DateTime
     ): [FoodEntry]
-    foodEntriesLength(userId: ID, dateRange: DateRangeInput): Int
+    foodEntriesLength(filter: GetFoodEntriesFilter, startDate: DateTime, endDate: DateTime): Int
     sumLastWeekEntries: Int
     sumLastTwoWeeksEntries: Int  
     averageLastWeekEntries: [AverageEntriesSummary] 
