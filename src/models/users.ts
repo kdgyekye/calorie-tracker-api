@@ -23,6 +23,7 @@ const UserSchema = new Schema(
     limit: {
       type: SchemaTypes.Number,
       min: 0,
+      default: 2100,
     },
     tokens: [{
           type: SchemaTypes.String,
